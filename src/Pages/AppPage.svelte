@@ -226,7 +226,7 @@
         searchResult = notes.filter(
             note => {
                 const none_name_lowercase = note.title ? note.title.toLowerCase() : '';
-                const none_content_lowercase = note.content ? note.content.toLowerCase() : '';
+                const none_content_lowercase = noteIdToContent[note.id] ? noteIdToContent[note.id].toLowerCase() : '';
                 return(
                     (none_name_lowercase && none_name_lowercase.indexOf(searchKey_lowercase) > -1)
                     ||
