@@ -1,6 +1,5 @@
 <script>
     import {fireEvent,EVENTS} from "./EventManager";
-
     export let show;
     export let noteName="";
     export let content;
@@ -11,6 +10,7 @@
     }
 
     const sendNoteAreaStatus = (evt) => {
+
         fireEvent(EVENTS.NOTE_AREA_STATUS_CHANGE,{status : evt.type});
     }
 
@@ -44,7 +44,7 @@
     }
 
     span.note-name.unsaved::after {
-        content: "*";
+        content: "";
         font-weight: bolder;
         color: indianred;
     }
