@@ -48,6 +48,16 @@ textarea::-webkit-scrollbar {
 	display: none;
 }
 
+::-moz-selection {
+	background: var(--theme-color);
+	color : var(--primary-color);
+}
+
+::selection {
+	background: var(--theme-color);
+	color : var(--primary-color);
+}
+
 .flex{
 	display: flex;
 }
