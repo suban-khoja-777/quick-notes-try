@@ -10,7 +10,7 @@
     import Input from "../utility/Input.svelte";
     import {registerListener , EVENTS, fireEvent} from '../EventManager';
     import Popup from "../utility/Popup.svelte";
-    import { sanitizeContent , normalizeContent} from "../utility";
+    import { sanitizeContent , normalizeContent,debounce} from "../utility";
 
     export let helpItems;
 
@@ -26,7 +26,7 @@
     let searchResultFound = null;
     let searchResult = [];
     let editMode = false;
-
+    let autoSaveHandler;
     let Popups = {
         searchPopup : false,
         helpPopup : false
@@ -53,6 +53,7 @@
         getAllNotes(AUTH.currentUser.uid)
         .then(res => {
             if(res && res.data && res.data.length){
+                autoSaveHandler = debounce(() => saveNote(false),100);
                 notes = res.data;
                 notes.forEach(userNote => {
                     noteIdToContent[userNote.id] = normalizeContent(userNote.content);
@@ -176,30 +177,30 @@
         Popups[popup_detail.popupName] = true;
     }
 
-    const saveNote = () => {
-        fireEvent(EVENTS.SHOW_SPINNER,{});
+    const saveNote = (notifyUser = true) => {
+        (notifyUser) && fireEvent(EVENTS.SHOW_SPINNER,{});
         const note_content_sanitize = sanitizeContent(selectedNote.content);
         updateNoteContent(selectedNote.id,note_content_sanitize,AUTH.currentUser.uid)
         .then(res => {
             if(res && res.success){
                 noteIdToContent[selectedNote.id] = selectedNote.content;
-                fireEvent(EVENTS.SHOW_TOAST,{
+                (notifyUser) && fireEvent(EVENTS.SHOW_TOAST,{
                     message : MESSAGE.NOTE_SAVE_SUCCESS
                 });
                 selectedNote.isContentChanged = false;
             }else{
-                fireEvent(EVENTS.SHOW_TOAST,{
+                (notifyUser) && fireEvent(EVENTS.SHOW_TOAST,{
                     message : MESSAGE.GENERIC_ERROR_MSG
                 });
             }
-            fireEvent(EVENTS.HIDE_SPINNER,{});
+            (notifyUser) && fireEvent(EVENTS.HIDE_SPINNER,{});
         })
         .catch(err => {
             //createLog('saveNote','193','ERROR',err,ERROR_GROUP);
-            fireEvent(EVENTS.SHOW_TOAST,{
+            (notifyUser) && fireEvent(EVENTS.SHOW_TOAST,{
                 message : MESSAGE.GENERIC_ERROR_MSG
             });
-            fireEvent(EVENTS.HIDE_SPINNER,{});
+            (notifyUser) && fireEvent(EVENTS.HIDE_SPINNER,{});
         });
     };
 
@@ -414,6 +415,11 @@
             
             }
         }
+
+        if(selectedNote.isContentChanged){
+            autoSaveHandler();
+        }
+            
     }
 
     const downloadNote = () => {
