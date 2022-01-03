@@ -53,7 +53,7 @@
         getAllNotes(AUTH.currentUser.uid)
         .then(res => {
             if(res && res.data && res.data.length){
-                autoSaveHandler = debounce(() => saveNote(false),100);
+                autoSaveHandler = debounce(() => saveNote(false),1000);
                 notes = res.data;
                 notes.forEach(userNote => {
                     noteIdToContent[userNote.id] = normalizeContent(userNote.content);
